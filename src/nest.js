@@ -7,7 +7,7 @@
 var nest = {
     // This is the main object that is used
     // to call the api
-    Nest: function(api_key) {
+    nest: function(api_key) {
         return {
             get_api_key: function(){
                 return api_key;
