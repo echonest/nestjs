@@ -12,8 +12,7 @@ var nest = {
             if (params.hasOwnProperty(key)) {
                 if (first) {
                     first = false;
-                } 
-                else {
+                } else {
                     query+= '&';
                 }
                 query+= (encodeURI(key) + '=' + encodeURI(params[key]));
@@ -44,8 +43,7 @@ var nest = {
                     if (request.status === 200 || request.status === 304) {
                         var json_response = JSON.parse(request.responseText);
                         callback(json_response);
-                    }
-                    else {
+                    } else {
                         callback({error: request.status});
                     }
                 }
