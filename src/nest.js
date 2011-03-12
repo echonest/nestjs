@@ -16,7 +16,7 @@ var nest = {
                 else {
                     query+= '&';
                 }
-                query+= (key + '=' + params[key]);
+                query+= (encodeURI(key) + '=' + encodeURI(params[key]));
             }
         }
         return query;
