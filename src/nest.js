@@ -31,7 +31,7 @@ var nest = {
 
         // make HTTP GET requests and call `callback` with the
         // response object
-        function nest_get(category, method, query, callback) {
+        function nestGet(category, method, query, callback) {
             query.api_key = api_key;
             query.format = 'json';
             var request = new XMLHttpRequest();
@@ -52,12 +52,12 @@ var nest = {
         }
         return {
             // return the read-only `api_key`
-            get_api_key: function() {
+            getAPIKey: function() {
                 return api_key;
             },
             
             // return the read-only `host` name
-            get_host: function() {
+            getHost: function() {
                 return host;
             },
 
@@ -67,7 +67,7 @@ var nest = {
                 return {
                     biographies: function(callback) {
                         var query = {"id":id};
-                        return nest_get(category, 'biographies', query, callback);
+                        return nestGet(category, 'biographies', query, callback);
                     }
                 };
             }
