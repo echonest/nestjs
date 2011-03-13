@@ -19,7 +19,7 @@ a new `nest` object like this
 Once you have your `nest` object, you can create a new `artist`. `artist` can
 be created with either a name, or an [Echo Nest ID](http://developer.echonest.com/docs/v4/index.html#identifiers).
 
-    var a = myNest.artist({name: "The Sea and Cake});
+    var a = myNest.artist({name: "The Sea and Cake"});
     var b = myNest.artist({id: "AR94EZ61187B990729"});
 
 Once we have our artist object, we can start calling the API. All methods take a
