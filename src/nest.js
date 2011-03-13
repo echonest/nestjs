@@ -14,6 +14,14 @@ var nest = (function(){
         }
     }
 
+    // Helper function to see if an object is
+    // really an array. Taken from
+    // `Javascript: The Good Parts` by
+    // Douglas Crockford
+    function isArray(obj) {
+        return Object.prototype.toString.apply(obj) === '[object Array]';
+    }
+
     // Update `obj` with all of the
     // key/values of `source`, not
     // following the prototype
@@ -36,7 +44,17 @@ var nest = (function(){
             } else {
                 query+= '&';
             }
-            query+= (encodeURI(key) + '=' + encodeURI(params[key]));
+            var value = params[key];
+            if (isArray(value)) {
+                for (i = 0; i < value.length; i++) {
+                    query+= (encodeURI(key) + '=' + encodeURI(value[i]));
+                    if (i < (value.length - 1)) {
+                        query+= '&';
+                    }
+                }
+            } else {
+                query+= (encodeURI(key) + '=' + encodeURI(value));
+            }
         });
         return query;
     }
@@ -110,14 +128,19 @@ var nest = (function(){
                     var artist = {};
                     // enumerate the list of methods
                     // we'll be attaching to `artist`
-                    var methods = ['audio',
+                    var methods = [
+                    'audio',
                     'biographies',
                     'blog',
+                    'familiarity',
+                    'hotttnesss',
                     'images',
+                    'profile',
                     'news',
                     'reviews',
                     'songs',
                     'similar',
+                    'terms',
                     'video'];
                     // helper function for having a closure remember
                     // a value in when it changes in a loop
@@ -137,7 +160,22 @@ var nest = (function(){
                             if (options) {
                                 update(query, options);
                             }
-                            return nestGet(category, method, query, callback);
+                            // TODO:
+                            // maybe this should be called with an object,
+                            // it has a lot of parameters
+                            return nestGet(category, method, query, function(err, results) {
+                                if (err) {
+                                    callback(err);
+                                } else {
+                                    if (results.artist) {
+                                        artist.name = results.artist.name;
+                                        artist.id   = results.artist.id;
+                                        callback(err, results.artist[method]);
+                                    } else {
+                                        callback(err, results);
+                                    }
+                                }
+                            });
                         };
                     }
                     for (i = 0; i < methods.length; i++) {
