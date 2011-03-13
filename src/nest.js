@@ -3,10 +3,11 @@
 
 // Wrap everything in the `nest` object, as to not clobber the
 // global namespace
-var nest = (function(){
+var nest = (function () {
     // Helper function for iterating through
     // the keys in an object
     function each(obj, func) {
+        var key;
         for (key in obj) {
             if (obj.hasOwnProperty(key)) {
                 func.call(obj, key);
@@ -27,33 +28,34 @@ var nest = (function(){
     // following the prototype
     // chain
     function update(obj, source) {
-        each(source, function(key) {
+        each(source, function (key) {
             obj[key] = source[key];
         });
         return obj;
     }
     // return a query string from an object
     function queryString(params) {
-        var query = '?';
-        var first = true;
-        each(params, function(key){
+        var query = '?', first = true;
+        var value;
+        each(params, function (key) {
+            var i;
             // only prepend `&` when this
             // isn't the first k/v pair
             if (first) {
                 first = false;
             } else {
-                query+= '&';
+                query += '&';
             }
-            var value = params[key];
+            value = params[key];
             if (isArray(value)) {
-                for (i = 0; i < value.length; i++) {
-                    query+= (encodeURI(key) + '=' + encodeURI(value[i]));
+                for (i = 0; i < value.length; i += 1) {
+                    query += (encodeURI(key) + '=' + encodeURI(value[i]));
                     if (i < (value.length - 1)) {
-                        query+= '&';
+                        query += '&';
                     }
                 }
             } else {
-                query+= (encodeURI(key) + '=' + encodeURI(value));
+                query += (encodeURI(key) + '=' + encodeURI(value));
             }
         });
         return query;
@@ -62,7 +64,7 @@ var nest = (function(){
     // This is the main object that is used
     // to call the api
     return {
-        nest: function(api_key, host) {
+        nest: function (api_key, host) {
             // optionaly take in another host,
             // for testing purposes
             host = host || "developer.echonest.com";
@@ -76,24 +78,25 @@ var nest = (function(){
                 query.format = 'json';
                 var request = new XMLHttpRequest();
                 var url = 'http://';
-                url+= host;
-                url+= api_path;
-                url+= category + '/';
-                url+= method;
-                url+= queryString(query);
+                url += host;
+                url += api_path;
+                url += category + '/';
+                url += method;
+                url += queryString(query);
 
                 request.open('GET', url, true);
-                request.onreadystatechange = function() {
+                request.onreadystatechange = function () {
+                    var sc, json_response, response;
                     // see if the response is ready
                     if (request.readyState === 4) {
                         // get the request status class, ie.
                         // 200 == 2, 404 == 4, etc.
-                        var sc = Math.floor(request.status / 100);
+                        sc = Math.floor(request.status / 100);
                         if (sc === 2 || sc === 3) {
-                            var json_response = JSON.parse(request.responseText);
+                            json_response = JSON.parse(request.responseText);
                             // unwrap the response from the outter
                             // `response` wrapper
-                            var response = json_response.response;
+                            response = json_response.response;
                             callback(null, response);
                         } else {
                             // there was an error,
@@ -108,19 +111,20 @@ var nest = (function(){
             }
             return {
                 // return the read-only `api_key`
-                getAPIKey: function() {
+                getAPIKey: function () {
                     return api_key;
                 },
                 
                 // return the read-only `host` name
-                getHost: function() {
+                getHost: function () {
                     return host;
                 },
 
                 // create a new artist
                 // params should have an
                 // `id` or `name` property
-                artist: function(params) {
+                artist: function (params) {
+                    var i;
                     // the method category
                     var category = 'artist';
                     // we'll be attaching functions to this
@@ -129,19 +133,19 @@ var nest = (function(){
                     // enumerate the list of methods
                     // we'll be attaching to `artist`
                     var methods = [
-                    'audio',
-                    'biographies',
-                    'blog',
-                    'familiarity',
-                    'hotttnesss',
-                    'images',
-                    'profile',
-                    'news',
-                    'reviews',
-                    'songs',
-                    'similar',
-                    'terms',
-                    'video'];
+                        'audio',
+                        'biographies',
+                        'blog',
+                        'familiarity',
+                        'hotttnesss',
+                        'images',
+                        'profile',
+                        'news',
+                        'reviews',
+                        'songs',
+                        'similar',
+                        'terms',
+                        'video'];
                     // helper function for having a closure remember
                     // a value in when it changes in a loop
                     function helper(method) {
@@ -152,7 +156,7 @@ var nest = (function(){
                         // the last one always being a callback function.
                         // The callback function will be called like
                         // `callback(err, result)`
-                        return function() {
+                        return function () {
                             var args = Array.prototype.slice.call(arguments);
                             var callback = args.pop();
                             var query = update({}, params);
@@ -163,7 +167,7 @@ var nest = (function(){
                             // TODO:
                             // maybe this should be called with an object,
                             // it has a lot of parameters
-                            return nestGet(category, method, query, function(err, results) {
+                            return nestGet(category, method, query, function (err, results) {
                                 if (err) {
                                     callback(err);
                                 } else {
@@ -178,7 +182,7 @@ var nest = (function(){
                             });
                         };
                     }
-                    for (i = 0; i < methods.length; i++) {
+                    for (i = 0; i < methods.length; i += 1) {
                         // go through and attach a function
                         // to each of the `artist` methods
                         var method = methods[i];
@@ -189,4 +193,4 @@ var nest = (function(){
             };
         }
     };
-})();
+}());
