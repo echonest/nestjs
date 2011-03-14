@@ -135,7 +135,7 @@ var nest = (function () {
                     var methods = [
                         'audio',
                         'biographies',
-                        'blog',
+                        'blogs',
                         'familiarity',
                         'hotttnesss',
                         'images',
@@ -172,9 +172,21 @@ var nest = (function () {
                                     callback(err);
                                 } else {
                                     if (results.artist) {
+                                        // If we get a result back that includes
+                                        // information about the artist, fill it
+                                        // in the artist object. This means if we 
+                                        // create an artist object with a name,
+                                        // but later get back a result that tells
+                                        // us the artist's ID, we can use it to
+                                        // speed up further queries.
                                         artist.name = results.artist.name;
-                                        artist.id   = results.artist.id;
-                                        callback(err, results.artist[method]);
+                                        artist.id = params.id = results.artist.id;
+                                        delete params.name;
+                                        if (method !== 'profile') {
+                                            callback(err, results.artist[method]);
+                                        } else {
+                                            callback(err, results.artist);
+                                        }
                                     } else {
                                         callback(err, results);
                                     }
