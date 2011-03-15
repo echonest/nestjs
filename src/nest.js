@@ -4,6 +4,7 @@
 // Wrap everything in the `nest` object, as to not clobber the
 // global namespace
 var nest = (function () {
+
     // Helper function for iterating through
     // the keys in an object
     function each(obj, func) {
@@ -33,6 +34,7 @@ var nest = (function () {
         });
         return obj;
     }
+
     // return a query string from an object
     function queryString(params) {
         var query = '?', first = true;
@@ -109,6 +111,11 @@ var nest = (function () {
                 // do it
                 request.send();
             }
+
+            // Return an object literal as the `nest`
+            // object. We do this to create private
+            // functions and variables for ourself,
+            // through the use of a closure.
             return {
                 // return the read-only `api_key`
                 getAPIKey: function () {
@@ -194,9 +201,9 @@ var nest = (function () {
                             });
                         };
                     }
+                    // go through and attach a function
+                    // to each of the `artist` methods
                     for (i = 0; i < methods.length; i += 1) {
-                        // go through and attach a function
-                        // to each of the `artist` methods
                         var method = methods[i];
                         artist[method] = helper(method);
                     }
