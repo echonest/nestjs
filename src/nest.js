@@ -127,7 +127,7 @@ var nest = (function () {
                     return host;
                 },
 
-                // create a new artist
+                // create a new artist,
                 // params should have an
                 // `id` or `name` property
                 artist: function (params) {
@@ -153,6 +153,17 @@ var nest = (function () {
                         'similar',
                         'terms',
                         'video'];
+
+                    // add `id` or `name`
+                    // to the artist object
+                    update(artist, params);
+
+                    // Return the best way to identify the artist,
+                    // first being an ID, second being a name
+                    artist.identify = function () {
+                        return (this.id) ? {id: this.id} : {name: this.name};
+                    };
+
                     // helper function for having a closure remember
                     // a value in when it changes in a loop
                     function helper(method) {
@@ -166,7 +177,7 @@ var nest = (function () {
                         return function () {
                             var args = Array.prototype.slice.call(arguments);
                             var callback = args.pop();
-                            var query = update({}, params);
+                            var query = update({}, artist.identify());
                             var options = args.pop();
                             if (options) {
                                 update(query, options);
@@ -187,8 +198,7 @@ var nest = (function () {
                                         // us the artist's ID, we can use it to
                                         // speed up further queries.
                                         artist.name = results.artist.name;
-                                        artist.id = params.id = results.artist.id;
-                                        delete params.name;
+                                        artist.id = results.artist.id;
                                         if (method !== 'profile') {
                                             callback(err, results.artist[method]);
                                         } else {
