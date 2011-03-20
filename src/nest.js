@@ -125,98 +125,101 @@ var nest = (function () {
                 return host;
             };
 
-            // create a new artist,
+            function helper (type, methods) {
+            // create a new artist, track, song, catalog, etc..
+            //
+            //
             // params should have an
             // `id` or `name` property
-            nest.artist = function (params) {
-                var i;
-                // the method category
-                var category = 'artist';
-                // we'll be attaching functions to this
-                // object
-                var artist = {};
-                // enumerate the list of methods
-                // we'll be attaching to `artist`
-                var methods = [
-                    'audio',
-                    'biographies',
-                    'blogs',
-                    'familiarity',
-                    'hotttnesss',
-                    'images',
-                    'profile',
-                    'news',
-                    'reviews',
-                    'songs',
-                    'similar',
-                    'terms',
-                    'video'];
+                return function (params) {
+                    var i;
+                    // we'll be attaching functions to this
+                    // object
+                    var container = {};
 
-                // add `id` or `name`
-                // to the artist object
-                update(artist, params);
+                    // add `id` or `name`
+                    // to the container object
+                    update(container, params);
 
-                // Return the best way to identify the artist,
-                // first being an ID, second being a name
-                artist.identify = function () {
-                    return (this.id) ? {id: this.id} : {name: this.name};
-                };
-
-                // helper function for having a closure remember
-                // a value in when it changes in a loop
-                function helper(method) {
-                    // this will be the function that
-                    // gets called for each of the methods
-                    // on `artist`. It can be called
-                    // with a variable number of arguments,
-                    // the last one always being a callback function.
-                    // The callback function will be called like
-                    // `callback(err, result)`
-                    return function () {
-                        var args = Array.prototype.slice.call(arguments);
-                        var callback = args.pop();
-                        var query = update({}, artist.identify());
-                        var options = args.pop();
-                        if (options) {
-                            update(query, options);
-                        }
-                        // TODO:
-                        // maybe this should be called with an object,
-                        // it has a lot of parameters
-                        return nestGet(category, method, query, function (err, results) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                if (results.artist) {
-                                    // If we get a result back that includes
-                                    // information about the artist, fill it
-                                    // in the artist object. This means if we 
-                                    // create an artist object with a name,
-                                    // but later get back a result that tells
-                                    // us the artist's ID, we can use it to
-                                    // speed up further queries.
-                                    artist.name = results.artist.name;
-                                    artist.id = results.artist.id;
-                                    if (method !== 'profile') {
-                                        callback(err, results.artist[method]);
-                                    } else {
-                                        callback(err, results.artist);
-                                    }
-                                } else {
-                                    callback(err, results);
-                                }
-                            }
-                        });
+                    // Return the best way to identify the container,
+                    // first being an ID, second being a name
+                    container.identify = function () {
+                        return (this.id) ? {id: this.id} : {name: this.name};
                     };
-                }
-                // go through and attach a function
-                // to each of the `artist` methods
-                for (i = 0; i < methods.length; i += 1) {
-                    var method = methods[i];
-                    artist[method] = helper(method);
-                }
-                return artist;
-            };
+
+                    // helper function for having a closure remember
+                    // a value in when it changes in a loop
+                    function helper(method) {
+                        // this will be the function that
+                        // gets called for each of the methods
+                        // on `container`. It can be called
+                        // with a variable number of arguments,
+                        // the last one always being a callback function.
+                        // The callback function will be called like
+                        // `callback(err, result)`
+                        return function () {
+                            var args = Array.prototype.slice.call(arguments);
+                            var callback = args.pop();
+                            var query = update({}, container.identify());
+                            var options = args.pop();
+                            if (options) {
+                                update(query, options);
+                            }
+                            // TODO:
+                            // maybe this should be called with an object,
+                            // it has a lot of parameters
+                            return nestGet(type, method, query, function (err, results) {
+                                if (err) {
+                                    callback(err);
+                                } else {
+                                    if (results[container]) {
+                                        // If we get a result back that includes
+                                        // information about the container, fill it
+                                        // in the container object. This means if we 
+                                        // create an container object with a name,
+                                        // but later get back a result that tells
+                                        // us the container's ID, we can use it to
+                                        // speed up further queries.
+                                        container.name = results[type].name;
+                                        container.id = results[type].id;
+                                        if (method !== 'profile') {
+                                            callback(err, results[type][method]);
+                                        } else {
+                                            callback(err, results[container]);
+                                        }
+                                    } else {
+                                        callback(err, results);
+                                    }
+                                }
+                            });
+                        };
+                    }
+                    // go through and attach a function
+                    // to each of the `artist` methods
+                    for (i = 0; i < methods.length; i += 1) {
+                        var method = methods[i];
+                        container[method] = helper(method);
+                    }
+                    return container;
+                };
+            }
+            var artist_methods = [
+                'audio',
+                'biographies',
+                'blogs',
+                'familiarity',
+                'hotttnesss',
+                'images',
+                'profile',
+                'news',
+                'reviews',
+                'songs',
+                'similar',
+                'terms',
+                'video'];
+            nest.artist = helper("artist", artist_methods);
+            nest.track = helper("track", ["profile"]);
+            nest.song = helper("song", ["profile"]);
             return nest; 
         }
     };
