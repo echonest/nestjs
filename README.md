@@ -2,7 +2,31 @@
 nest.js is a thin javascript wrapper to the Echo Nest 
 [developer API](http://developer.echonest.com).
 
-It is currently a work-in-progress.
+The currently supported methods are:
+
+####Artist
+
+    * audio
+    * biographies
+    * blogs
+    * familiarity
+    * hotttnesss
+    * images
+    * profile
+    * news
+    * reviews
+    * songs
+    * similar
+    * terms
+    * video
+
+####Track
+
+    * Profile
+
+####Song
+
+    * Profile
 
 To get started, [you'll need to get an API key](http://developer.echonest.com/account/register).
 
@@ -16,6 +40,8 @@ a new `nest` object like this
 
 `var myNest = nest.nest("your API key here");`
 
+
+### Artists
 Once you have your `nest` object, you can create a new `artist`. `artist` can
 be created with either a name, or an [Echo Nest ID](http://developer.echonest.com/docs/v4/index.html#identifiers).
 
