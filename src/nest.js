@@ -63,6 +63,7 @@ var nest = (function () {
         return query;
     }
 
+
     // This is the main object that is used
     // to call the api
     return {
@@ -125,7 +126,7 @@ var nest = (function () {
                 return host;
             };
 
-            function helper (type, methods) {
+            function creator (type, methods) {
             // create a new artist, track, song, catalog, etc..
             //
             //
@@ -149,7 +150,7 @@ var nest = (function () {
 
                     // helper function for having a closure remember
                     // a value in when it changes in a loop
-                    function helper(method) {
+                    function methodCreator(method) {
                         // this will be the function that
                         // gets called for each of the methods
                         // on `container`. It can be called
@@ -198,7 +199,7 @@ var nest = (function () {
                     // to each of the `artist` methods
                     for (i = 0; i < methods.length; i += 1) {
                         var method = methods[i];
-                        container[method] = helper(method);
+                        container[method] = methodCreator(method);
                     }
                     return container;
                 };
@@ -217,9 +218,9 @@ var nest = (function () {
                 'similar',
                 'terms',
                 'video'];
-            nest.artist = helper("artist", artist_methods);
-            nest.track = helper("track", ["profile"]);
-            nest.song = helper("song", ["profile"]);
+            nest.artist = creator("artist", artist_methods);
+            nest.track  = creator("track", ["profile"]);
+            nest.song   = creator("song", ["profile"]);
             return nest; 
         }
     };
