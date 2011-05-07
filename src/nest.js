@@ -104,11 +104,13 @@ var nest = (function () {
                             // `response` wrapper
                             response = json_response.response;
                             callback(null, response);
+                            return;
                         } else {
                             // there was an error,
                             // just return the `status`
                             // as the first paramter
                             callback(request.status);
+                            return;
                         }
                     }
                 };
@@ -172,6 +174,7 @@ var nest = (function () {
                             return nestGet(type, method, query, function (err, results) {
                                 if (err) {
                                     callback(err);
+                                    return;
                                 } else {
                                     if (results[container]) {
                                         // If we get a result back that includes
@@ -185,11 +188,14 @@ var nest = (function () {
                                         container.id = results[type].id;
                                         if (method !== 'profile') {
                                             callback(err, results[type][method]);
+                                            return;
                                         } else {
                                             callback(err, results[container]);
+                                            return;
                                         }
                                     } else {
                                         callback(err, results);
+                                        return;
                                     }
                                 }
                             });
@@ -204,6 +210,41 @@ var nest = (function () {
                     return container;
                 };
             }
+
+            function searchHelper(type) {
+                return function () {
+                    var args = Array.prototype.slice.call(arguments);
+                    var callback = args.pop();
+                    var params = args.pop() || {};
+                    nestGet(type, 'search', params, function (err, results) {
+                        var output = [];
+                        // turn `artist` into `artists`
+                        // and `song` into `songs`
+                        var resultKey = type + 's';
+                        var objects = results[resultKey];
+
+                        if (err) {
+                            callback(err);
+                            return;
+                        } else {
+                            // make the artist or song
+                            // objects out of the results
+                            for (i = 0; i < objects.length; i += 1) {
+                                output.push(nest[type](objects[i]));
+                            }
+
+                            callback(null, output);
+                            return;
+                        }
+                        // this code path should
+                        // not be reachable but
+                        // it's good style to
+                        // keep it in
+                        return;
+                    });
+                };
+            }
+
             var artist_methods = [
                 'audio',
                 'biographies',
@@ -221,6 +262,8 @@ var nest = (function () {
             nest.artist = creator("artist", artist_methods);
             nest.track  = creator("track", ["profile"]);
             nest.song   = creator("song", ["profile"]);
+            nest.searchArtists  = searchHelper('artist');
+            nest.searchSongs    = searchHelper('song');
             return nest; 
         }
     };
