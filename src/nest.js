@@ -89,13 +89,34 @@ var nest = (function () {
         host = host || "developer.echonest.com";
         var api_path = "/api/v4/";
 
+
+        //Cross-browser compatibility XMLHttpRequest
+        function createRequestObject() {
+        if (typeof XMLHttpRequest === 'undefined') {
+        XMLHttpRequest = function() {
+        try { return new ActiveXObject("Msxml2.XMLHTTP.6.0"); }
+        catch(e) {}
+        try { return new ActiveXObject("Msxml2.XMLHTTP.3.0"); }
+        catch(e) {}
+        try { return new ActiveXObject("Msxml2.XMLHTTP"); }
+        catch(e) {}
+        try { return new ActiveXObject("Microsoft.XMLHTTP"); }
+        catch(e) {}
+        throw new Error("This browser does not support XMLHttpRequest.");
+                };
+            }
+        return new XMLHttpRequest();
+        }
+
+        
+
         // make HTTP GET requests and call `callbacks.success`
         // or `callbacks.error` with the
         // response object, or the `status`, on error
         function nestGet(category, method, query, callback) {
             query.api_key = api_key;
             query.format = 'json';
-            var request = new XMLHttpRequest();
+            var request = new createRequestObject();
             var url = 'http://';
             url += host;
             url += api_path;
